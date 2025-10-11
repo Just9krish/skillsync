@@ -9,12 +9,9 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false, // Set to true for production
+    requireEmailVerification: false,
     minPasswordLength: 6,
     maxPasswordLength: 20,
-  },
-  socialProviders: {
-    // Add social providers later if needed
   },
   user: {
     additionalFields: {
@@ -33,8 +30,5 @@ export const auth = betterAuth({
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // 1 day
-  },
-  advanced: {
-    generateId: () => crypto.randomUUID(),
   },
 });

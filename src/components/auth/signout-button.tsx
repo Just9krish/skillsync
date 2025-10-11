@@ -1,13 +1,12 @@
 'use client';
 
-import { createAuthClient } from 'better-auth/react';
 import { Button } from '../ui/button';
 import { LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { signOut } from '@/lib/auth-client';
 
 export const SignOutButton = () => {
   const router = useRouter();
-  const { signOut } = createAuthClient();
 
   const handleSignOut = async () => {
     await signOut({

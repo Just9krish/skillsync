@@ -21,7 +21,7 @@ import {
   FormLabel,
   FormMessage,
 } from '../ui/form';
-import { authClient } from '@/lib/auth-client';
+import { signUp } from '@/lib/auth-client';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -53,7 +53,7 @@ export const RegisterForm = () => {
   const onSubmit = async (
     submittedData: z.infer<typeof RegisterFormSchema>
   ) => {
-    const { error, data } = await authClient.signUp.email(
+    const { error, data } = await signUp.email(
       {
         email: submittedData.email,
         password: submittedData.password,

@@ -22,7 +22,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { authClient } from '@/lib/auth-client';
+import { signIn } from '@/lib/auth-client';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 
@@ -46,7 +46,7 @@ export const LoginForm = () => {
   });
 
   const onSubmit = async (submittedData: z.infer<typeof LoginFormSchema>) => {
-    const { error, data } = await authClient.signIn.email(
+    const { error, data } = await signIn.email(
       {
         email: submittedData.email,
         password: submittedData.password,
