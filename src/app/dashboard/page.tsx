@@ -1,3 +1,4 @@
+'use client';
 import {
   Card,
   CardContent,
@@ -7,6 +8,7 @@ import {
 } from '@/components/ui/card';
 import { User, Mail, Calendar } from 'lucide-react';
 import { SignOutButton } from '@/components/auth/signout-button';
+import { Button } from '@/components/ui/button';
 
 export default function DashboardPage() {
   return (
@@ -82,6 +84,8 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           </div>
+
+          <Button>Insert goal</Button>
         </div>
       </main>
     </div>
