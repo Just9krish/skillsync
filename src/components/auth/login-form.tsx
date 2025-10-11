@@ -24,6 +24,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 const LoginFormSchema = z.object({
   email: z.email({
@@ -35,6 +36,7 @@ const LoginFormSchema = z.object({
 });
 
 export const LoginForm = () => {
+  const router = useRouter();
   const form = useForm<z.infer<typeof LoginFormSchema>>({
     resolver: zodResolver(LoginFormSchema),
     defaultValues: {
@@ -52,11 +54,11 @@ export const LoginForm = () => {
       },
       {
         onSuccess: () => {
+          router.push('/dashboard');
           toast.success('Login successful');
         },
-        onError: error => {
-          console.error(error);
-          toast.error('Login failed');
+        onError: ctx => {
+          toast.error(ctx.error.message);
         },
       }
     );

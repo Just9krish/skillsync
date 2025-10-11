@@ -1,4 +1,3 @@
-import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -6,7 +5,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { LogOut, User, Mail, Calendar } from 'lucide-react';
+import { User, Mail, Calendar } from 'lucide-react';
+import { SignOutButton } from '@/components/auth/signout-button';
 
 export default function DashboardPage() {
   return (
@@ -19,10 +19,7 @@ export default function DashboardPage() {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-muted-foreground">Welcome</span>
-              <Button variant="outline">
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
-              </Button>
+              <SignOutButton />
             </div>
           </div>
         </div>
