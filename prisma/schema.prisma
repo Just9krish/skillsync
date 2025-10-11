@@ -14,39 +14,52 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model goal {
-  id          String    @id @default(uuid())
+model LearningGoal {
+  id          String    @id @default(cuid())
   title       String
   description String?
   tags        String[]
   deadline    DateTime?
-  progress    Int
-  status      String
+  progress    Int       @default(0)
+  status      String    @default("active") // active, completed, paused, cancelled
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @default(now()) @updatedAt
+  updatedAt   DateTime  @updatedAt
+
+  // Relationships
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks     Task[]
+  aiContent AIContent[]
+
+  @@map("learning_goals")
 }
 
 model User {
-  id            String    @id
+  id            String   @id @default(cuid())
   name          String
-  email         String
-  emailVerified Boolean   @default(false)
+  email         String   @unique
+  emailVerified Boolean  @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
   bio           String?
   avatar        String?
+
+  // Better Auth relationships
   sessions      Session[]
   accounts      Account[]
+  verifications Verification[]
 
-  @@unique([email])
-  @@map("user")
+  // Learning goals relationship
+  learningGoals LearningGoal[]
+
+  @@map("users")
 }
 
 model Session {
-  id        String   @id
+  id        String   @id @default(cuid())
   expiresAt DateTime
-  token     String
+  token     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   ipAddress String?
@@ -54,12 +67,11 @@ model Session {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([token])
-  @@map("session")
+  @@map("sessions")
 }
 
 model Account {
-  id                    String    @id
+  id                    String    @id @default(cuid())
   accountId             String
   providerId            String
   userId                String
@@ -74,16 +86,52 @@ model Account {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
-  @@map("account")
+  @@unique([providerId, accountId])
+  @@map("accounts")
 }
 
 model Verification {
-  id         String   @id
+  id         String   @id @default(cuid())
   identifier String
   value      String
   expiresAt  DateTime
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @default(now()) @updatedAt
+  updatedAt  DateTime @updatedAt
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("verification")
+  @@map("verifications")
+}
+
+model Task {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  completed   Boolean   @default(false)
+  priority    String    @default("medium") // low, medium, high
+  dueDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relationships
+  learningGoalId String
+  learningGoal   LearningGoal @relation(fields: [learningGoalId], references: [id], onDelete: Cascade)
+
+  @@map("tasks")
+}
+
+model AIContent {
+  id        String   @id @default(cuid())
+  type      String // learning_path, quiz, summary
+  title     String
+  content   String // JSON string containing the AI-generated content
+  metadata  Json? // Additional metadata like difficulty, topics, etc.
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  learningGoalId String
+  learningGoal   LearningGoal @relation(fields: [learningGoalId], references: [id], onDelete: Cascade)
+
+  @@map("ai_content")
 }
