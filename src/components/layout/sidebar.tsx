@@ -17,7 +17,7 @@ export const Sidebar = () => {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-border bg-card">
+    <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-border bg-sidebar">
       <div className="flex h-16 items-center border-b border-border px-6">
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-accent" />

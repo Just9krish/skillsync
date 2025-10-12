@@ -17,6 +17,7 @@ datasource db {
 model LearningGoal {
   id          String    @id @default(cuid())
   title       String
+  slug        String    @unique
   description String?
   tags        String[]
   deadline    DateTime?
@@ -106,6 +107,7 @@ model Verification {
 model Task {
   id          String    @id @default(cuid())
   title       String
+  slug        String
   description String?
   completed   Boolean   @default(false)
   priority    String    @default("medium") // low, medium, high
@@ -117,6 +119,7 @@ model Task {
   learningGoalId String
   learningGoal   LearningGoal @relation(fields: [learningGoalId], references: [id], onDelete: Cascade)
 
+  @@unique([learningGoalId, slug])
   @@map("tasks")
 }
 

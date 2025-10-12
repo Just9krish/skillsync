@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { generateUniqueSlug } from '@/lib/slugify';
+import { headers } from 'next/headers';
 
 // Validation schemas
 const CreateTaskSchema = z.object({
@@ -36,7 +38,7 @@ const DeleteTaskSchema = z.object({
 // Helper function to get current user
 async function getCurrentUser() {
   const session = await auth.api.getSession({
-    headers: new Headers(),
+    headers: await headers(),
   });
 
   if (!session?.user) {
@@ -63,17 +65,22 @@ async function verifyGoalOwnership(goalId: string, userId: string) {
 }
 
 // Create a new task
-export async function createTask(formData: FormData) {
+export async function createTask(data: {
+  title: string;
+  description?: string;
+  priority?: 'low' | 'medium' | 'high';
+  dueDate?: string;
+  learningGoalId: string;
+}) {
   try {
     const user = await getCurrentUser();
 
-    // Parse and validate form data
     const rawData = {
-      title: formData.get('title') as string,
-      description: formData.get('description') as string,
-      priority: (formData.get('priority') as string) || 'medium',
-      dueDate: formData.get('dueDate') as string,
-      learningGoalId: formData.get('learningGoalId') as string,
+      title: data.title,
+      description: data.description || '',
+      priority: data.priority || 'medium',
+      dueDate: data.dueDate || '',
+      learningGoalId: data.learningGoalId,
     };
 
     const validatedData = CreateTaskSchema.parse(rawData);
@@ -81,10 +88,19 @@ export async function createTask(formData: FormData) {
     // Verify goal ownership
     await verifyGoalOwnership(validatedData.learningGoalId, user.id);
 
+    // Generate unique slug for the task within the goal
+    const existingTasks = await prisma.task.findMany({
+      where: { learningGoalId: validatedData.learningGoalId },
+      select: { slug: true },
+    });
+    const existingSlugList = existingTasks.map(task => task.slug);
+    const slug = generateUniqueSlug(validatedData.title, existingSlugList);
+
     // Create the task
     const task = await prisma.task.create({
       data: {
         ...validatedData,
+        slug,
         completed: false,
       },
     });
@@ -92,7 +108,16 @@ export async function createTask(formData: FormData) {
     // Update goal progress based on completed tasks
     await updateGoalProgress(validatedData.learningGoalId);
 
+    // Get goal slug for revalidation
+    const goal = await prisma.learningGoal.findUnique({
+      where: { id: validatedData.learningGoalId },
+      select: { slug: true },
+    });
+
     revalidatePath('/dashboard');
+    if (goal) {
+      revalidatePath(`/goals/${goal.slug}`);
+    }
     return { success: true, task };
   } catch (error) {
     console.error('Error creating task:', error);
@@ -113,18 +138,24 @@ export async function createTask(formData: FormData) {
 }
 
 // Update an existing task
-export async function updateTask(formData: FormData) {
+export async function updateTask(data: {
+  id: string;
+  title?: string;
+  description?: string;
+  priority?: 'low' | 'medium' | 'high';
+  dueDate?: string;
+  learningGoalId?: string;
+}) {
   try {
     const user = await getCurrentUser();
 
-    // Parse and validate form data
     const rawData = {
-      id: formData.get('id') as string,
-      title: formData.get('title') as string,
-      description: formData.get('description') as string,
-      priority: formData.get('priority') as string,
-      dueDate: formData.get('dueDate') as string,
-      learningGoalId: formData.get('learningGoalId') as string,
+      id: data.id,
+      title: data.title || '',
+      description: data.description || '',
+      priority: data.priority || 'medium',
+      dueDate: data.dueDate || '',
+      learningGoalId: data.learningGoalId || '',
     };
 
     const validatedData = UpdateTaskSchema.parse(rawData);
@@ -142,19 +173,40 @@ export async function updateTask(formData: FormData) {
       };
     }
 
+    // Generate new slug if title is being updated
+    let updateData: any = { ...validatedData, id: undefined };
+    if (validatedData.title && validatedData.title !== task.title) {
+      const existingTasks = await prisma.task.findMany({
+        where: {
+          learningGoalId: task.learningGoalId,
+          id: { not: validatedData.id },
+        },
+        select: { slug: true },
+      });
+      const existingSlugList = existingTasks.map(t => t.slug);
+      const newSlug = generateUniqueSlug(validatedData.title, existingSlugList);
+      updateData.slug = newSlug;
+    }
+
     // Update the task
     const updatedTask = await prisma.task.update({
       where: { id: validatedData.id },
-      data: {
-        ...validatedData,
-        id: undefined, // Remove id from update data
-      },
+      data: updateData,
     });
 
     // Update goal progress
     await updateGoalProgress(task.learningGoalId);
 
+    // Get goal slug for revalidation
+    const goal = await prisma.learningGoal.findUnique({
+      where: { id: task.learningGoalId },
+      select: { slug: true },
+    });
+
     revalidatePath('/dashboard');
+    if (goal) {
+      revalidatePath(`/goals/${goal.slug}`);
+    }
     return { success: true, task: updatedTask };
   } catch (error) {
     console.error('Error updating task:', error);
@@ -175,16 +227,14 @@ export async function updateTask(formData: FormData) {
 }
 
 // Toggle task completion
-export async function toggleTaskCompletion(formData: FormData) {
+export async function toggleTaskCompletion(data: {
+  id: string;
+  completed: boolean;
+}) {
   try {
     const user = await getCurrentUser();
 
-    const rawData = {
-      id: formData.get('id') as string,
-      completed: formData.get('completed') === 'true',
-    };
-
-    const validatedData = ToggleTaskSchema.parse(rawData);
+    const validatedData = ToggleTaskSchema.parse(data);
 
     // Get the task and verify ownership through goal
     const task = await prisma.task.findFirst({
@@ -208,7 +258,16 @@ export async function toggleTaskCompletion(formData: FormData) {
     // Update goal progress
     await updateGoalProgress(task.learningGoalId);
 
+    // Get goal slug for revalidation
+    const goal = await prisma.learningGoal.findUnique({
+      where: { id: task.learningGoalId },
+      select: { slug: true },
+    });
+
     revalidatePath('/dashboard');
+    if (goal) {
+      revalidatePath(`/goals/${goal.slug}`);
+    }
     return { success: true, task: updatedTask };
   } catch (error) {
     console.error('Error toggling task completion:', error);
@@ -229,15 +288,11 @@ export async function toggleTaskCompletion(formData: FormData) {
 }
 
 // Delete a task
-export async function deleteTask(formData: FormData) {
+export async function deleteTask(data: { id: string }) {
   try {
     const user = await getCurrentUser();
 
-    const rawData = {
-      id: formData.get('id') as string,
-    };
-
-    const validatedData = DeleteTaskSchema.parse(rawData);
+    const validatedData = DeleteTaskSchema.parse(data);
 
     // Get the task and verify ownership through goal
     const task = await prisma.task.findFirst({
@@ -260,7 +315,16 @@ export async function deleteTask(formData: FormData) {
     // Update goal progress
     await updateGoalProgress(task.learningGoalId);
 
+    // Get goal slug for revalidation
+    const goal = await prisma.learningGoal.findUnique({
+      where: { id: task.learningGoalId },
+      select: { slug: true },
+    });
+
     revalidatePath('/dashboard');
+    if (goal) {
+      revalidatePath(`/goals/${goal.slug}`);
+    }
     return { success: true };
   } catch (error) {
     console.error('Error deleting task:', error);

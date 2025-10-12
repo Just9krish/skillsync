@@ -1,33 +1,10 @@
-import { Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { CreateGoalDialog } from '@/components/goals/create-goal-dialog';
 import { GoalCard } from './_components/card-goal';
+import { getUserGoals } from '@/actions/goals';
 
-const goals = [
-  {
-    id: '1',
-    title: 'Master React & TypeScript',
-    description: 'Build advanced web applications with modern React patterns',
-    progress: 65,
-    category: 'Development',
-  },
-  {
-    id: '2',
-    title: 'Learn Data Structures',
-    description:
-      'Master algorithms and data structures for technical interviews',
-    progress: 42,
-    category: 'Computer Science',
-  },
-  {
-    id: '3',
-    title: 'UI/UX Design Fundamentals',
-    description: 'Create beautiful and intuitive user interfaces',
-    progress: 78,
-    category: 'Design',
-  },
-];
+export default async function DashboardPage() {
+  const { goals } = await getUserGoals();
 
-export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -38,20 +15,53 @@ export default function DashboardPage() {
             Continue your learning journey and track your progress
           </p>
         </div>
-        <Button size="lg" className="gap-2">
-          <Plus className="h-5 w-5" />
-          Add Goal
-        </Button>
+        <CreateGoalDialog />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Goals Section */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="grid gap-6">
-            {goals.map(goal => (
-              <GoalCard key={goal.id} {...goal} />
-            ))}
-          </div>
+          {goals.length > 0 ? (
+            <div className="grid gap-6">
+              {goals.map(goal => (
+                <GoalCard
+                  key={goal.id}
+                  id={goal.id}
+                  title={goal.title}
+                  slug={goal.slug}
+                  description={goal.description || ''}
+                  progress={goal.progress}
+                  category={goal.tags[0] || 'General'}
+                  status={goal.status}
+                  deadline={goal.deadline}
+                  tags={goal.tags}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4">
+                <svg
+                  className="w-12 h-12 text-muted-foreground"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold mb-2">No goals yet</h3>
+              <p className="text-muted-foreground mb-4">
+                Create your first learning goal to get started
+              </p>
+              <CreateGoalDialog />
+            </div>
+          )}
         </div>
 
         {/* AI Insights Section */}

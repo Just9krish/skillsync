@@ -5,6 +5,7 @@ export {
   deleteGoal,
   getUserGoals,
   getGoalById,
+  getGoalBySlug,
   updateGoalProgress,
 } from './goals';
 

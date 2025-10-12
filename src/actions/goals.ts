@@ -2,9 +2,10 @@
 
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { generateUniqueSlug } from '@/lib/slugify';
 
 // Validation schemas
 const CreateGoalSchema = z.object({
@@ -34,7 +35,7 @@ const DeleteGoalSchema = z.object({
 // Helper function to get current user
 async function getCurrentUser() {
   const session = await auth.api.getSession({
-    headers: new Headers(),
+    headers: await headers(),
   });
 
   if (!session?.user) {
@@ -45,27 +46,46 @@ async function getCurrentUser() {
 }
 
 // Create a new learning goal
-export async function createGoal(formData: FormData) {
+export async function createGoal(data: {
+  title: string;
+  description?: string;
+  tags?: string;
+  deadline?: string;
+  status?: 'active' | 'paused' | 'cancelled';
+}) {
   try {
     const user = await getCurrentUser();
 
     // Parse and validate form data
+    const tags = data.tags
+      ? data.tags
+          .split(',')
+          .map(tag => tag.trim())
+          .filter(tag => tag.length > 0)
+      : [];
+
     const rawData = {
-      title: formData.get('title') as string,
-      description: formData.get('description') as string,
-      tags: formData.get('tags')
-        ? JSON.parse(formData.get('tags') as string)
-        : [],
-      deadline: formData.get('deadline') as string,
-      status: (formData.get('status') as string) || 'active',
+      title: data.title,
+      description: data.description || '',
+      tags,
+      deadline: data.deadline || '',
+      status: data.status || 'active',
     };
 
     const validatedData = CreateGoalSchema.parse(rawData);
+
+    // Generate unique slug
+    const existingSlugs = await prisma.learningGoal.findMany({
+      select: { slug: true },
+    });
+    const existingSlugList = existingSlugs.map(goal => goal.slug);
+    const slug = generateUniqueSlug(validatedData.title, existingSlugList);
 
     // Create the goal
     const goal = await prisma.learningGoal.create({
       data: {
         ...validatedData,
+        slug,
         userId: user.id,
         progress: 0,
       },
@@ -96,23 +116,18 @@ export async function createGoal(formData: FormData) {
 }
 
 // Update an existing learning goal
-export async function updateGoal(formData: FormData) {
+export async function updateGoal(data: {
+  id: string;
+  title?: string;
+  description?: string;
+  tags?: string[];
+  deadline?: string;
+  status?: 'active' | 'completed' | 'paused' | 'cancelled';
+}) {
   try {
     const user = await getCurrentUser();
 
-    // Parse and validate form data
-    const rawData = {
-      id: formData.get('id') as string,
-      title: formData.get('title') as string,
-      description: formData.get('description') as string,
-      tags: formData.get('tags')
-        ? JSON.parse(formData.get('tags') as string)
-        : [],
-      deadline: formData.get('deadline') as string,
-      status: formData.get('status') as string,
-    };
-
-    const validatedData = UpdateGoalSchema.parse(rawData);
+    const validatedData = UpdateGoalSchema.parse(data);
 
     // Check if goal belongs to user
     const existingGoal = await prisma.learningGoal.findFirst({
@@ -129,13 +144,22 @@ export async function updateGoal(formData: FormData) {
       };
     }
 
+    // Generate new slug if title is being updated
+    let updateData: any = { ...validatedData, id: undefined };
+    if (validatedData.title && validatedData.title !== existingGoal.title) {
+      const existingSlugs = await prisma.learningGoal.findMany({
+        select: { slug: true },
+        where: { id: { not: validatedData.id } },
+      });
+      const existingSlugList = existingSlugs.map(goal => goal.slug);
+      const newSlug = generateUniqueSlug(validatedData.title, existingSlugList);
+      updateData.slug = newSlug;
+    }
+
     // Update the goal
     const goal = await prisma.learningGoal.update({
       where: { id: validatedData.id },
-      data: {
-        ...validatedData,
-        id: undefined, // Remove id from update data
-      },
+      data: updateData,
       include: {
         tasks: true,
         aiContent: true,
@@ -163,15 +187,11 @@ export async function updateGoal(formData: FormData) {
 }
 
 // Delete a learning goal
-export async function deleteGoal(formData: FormData) {
+export async function deleteGoal(data: { id: string }) {
   try {
     const user = await getCurrentUser();
 
-    const rawData = {
-      id: formData.get('id') as string,
-    };
-
-    const validatedData = DeleteGoalSchema.parse(rawData);
+    const validatedData = DeleteGoalSchema.parse(data);
 
     // Check if goal belongs to user
     const existingGoal = await prisma.learningGoal.findFirst({
@@ -279,13 +299,52 @@ export async function getGoalById(goalId: string) {
   }
 }
 
-// Update goal progress
-export async function updateGoalProgress(formData: FormData) {
+// Get a single goal by slug
+export async function getGoalBySlug(slug: string) {
   try {
     const user = await getCurrentUser();
 
-    const goalId = formData.get('goalId') as string;
-    const progress = parseInt(formData.get('progress') as string);
+    const goal = await prisma.learningGoal.findFirst({
+      where: {
+        slug,
+        userId: user.id,
+      },
+      include: {
+        tasks: {
+          orderBy: { createdAt: 'asc' },
+        },
+        aiContent: {
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+    });
+
+    if (!goal) {
+      return {
+        success: false,
+        error: 'Goal not found or access denied',
+      };
+    }
+
+    return { success: true, goal };
+  } catch (error) {
+    console.error('Error fetching goal:', error);
+    return {
+      success: false,
+      error: 'Failed to fetch goal',
+    };
+  }
+}
+
+// Update goal progress
+export async function updateGoalProgress(data: {
+  goalId: string;
+  progress: number;
+}) {
+  try {
+    const user = await getCurrentUser();
+
+    const { goalId, progress } = data;
 
     if (isNaN(progress) || progress < 0 || progress > 100) {
       return {

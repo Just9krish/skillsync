@@ -1,38 +1,94 @@
-'use client';
-
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Calendar, Tag } from 'lucide-react';
+import Link from 'next/link';
 
 interface GoalCardProps {
+  id: string;
   title: string;
+  slug: string;
   description: string;
   progress: number;
   category: string;
-  id: string;
+  status: string;
+  deadline?: Date | null;
+  tags: string[];
 }
 
 export const GoalCard = ({
+  id,
   title,
+  slug,
   description,
   progress,
   category,
-  id,
+  status,
+  deadline,
+  tags,
 }: GoalCardProps) => {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-100 text-green-800';
+      case 'paused':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-blue-100 text-blue-800';
+    }
+  };
+
+  const formatDate = (date: Date | null) => {
+    if (!date) return null;
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }).format(new Date(date));
+  };
+
   return (
     <Card className="p-6 hover:shadow-lg transition-all duration-300 border border-border bg-gradient-to-br from-card to-card/50">
       <div className="space-y-4">
         <div className="flex items-start justify-between">
           <div className="space-y-1 flex-1">
-            <h3 className="font-semibold text-lg">{title}</h3>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="font-semibold text-lg">{title}</h3>
+              <Badge className={`text-xs ${getStatusColor(status)}`}>
+                {status}
+              </Badge>
+            </div>
             <p className="text-sm text-muted-foreground">{description}</p>
           </div>
           <Badge variant="secondary" className="ml-2">
             {category}
           </Badge>
         </div>
+
+        {tags.length > 0 && (
+          <div className="flex items-center gap-1 flex-wrap">
+            {tags.slice(0, 3).map((tag, index) => (
+              <Badge key={index} variant="outline" className="text-xs">
+                {tag}
+              </Badge>
+            ))}
+            {tags.length > 3 && (
+              <span className="text-xs text-muted-foreground">
+                +{tags.length - 3} more
+              </span>
+            )}
+          </div>
+        )}
+
+        {deadline && (
+          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+            <Calendar className="h-4 w-4" />
+            <span>Due: {formatDate(deadline)}</span>
+          </div>
+        )}
 
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
@@ -43,12 +99,12 @@ export const GoalCard = ({
         </div>
 
         <div className="flex items-center gap-2">
-          <Button size="sm" className="flex-1">
+          <Button size="sm">
             <Sparkles className="h-4 w-4" />
             AI Suggest
           </Button>
-          <Button variant="outline" size="sm">
-            View Details
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/goals/${slug}`}>View Details</Link>
           </Button>
         </div>
       </div>
