@@ -26,12 +26,10 @@ export default async function DashboardPage() {
               {goals.map(goal => (
                 <GoalCard
                   key={goal.id}
-                  id={goal.id}
                   title={goal.title}
                   slug={goal.slug}
                   description={goal.description || ''}
                   progress={goal.progress}
-                  category={goal.tags[0] || 'General'}
                   status={goal.status}
                   deadline={goal.deadline}
                   tags={goal.tags}

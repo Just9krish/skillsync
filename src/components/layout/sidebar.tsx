@@ -4,6 +4,7 @@ import { Home, Target, MessageSquare, User, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { SignOutButton } from '../auth/signout-button';
 
 const navItems = [
   { title: 'Dashboard', icon: Home, path: '/dashboard' },
@@ -47,6 +48,10 @@ export const Sidebar = () => {
           );
         })}
       </nav>
+
+      <div className="absolute bottom-0 left-0 right-0 p-4">
+        <SignOutButton className="w-full" />
+      </div>
     </aside>
   );
 };

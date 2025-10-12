@@ -16,7 +16,7 @@ export const Navbar = () => {
           />
         </div>
 
-        <div className="flex items-center gap-4">
+        {/* <div className="flex items-center gap-4">
           <button className="relative rounded-full p-2 hover:bg-accent transition-colors">
             <Bell className="h-5 w-5 text-muted-foreground" />
             <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-accent" />
@@ -26,7 +26,7 @@ export const Navbar = () => {
             <AvatarImage src="https://github.com/shadcn.png" />
             <AvatarFallback>SK</AvatarFallback>
           </Avatar>
-        </div>
+        </div> */}
       </div>
     </header>
   );

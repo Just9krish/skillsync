@@ -2,28 +2,24 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Sparkles, Calendar, Tag } from 'lucide-react';
+import { Sparkles, Calendar } from 'lucide-react';
 import Link from 'next/link';
 
 interface GoalCardProps {
-  id: string;
   title: string;
   slug: string;
   description: string;
   progress: number;
-  category: string;
   status: string;
   deadline?: Date | null;
   tags: string[];
 }
 
 export const GoalCard = ({
-  id,
   title,
   slug,
   description,
   progress,
-  category,
   status,
   deadline,
   tags,
@@ -55,7 +51,7 @@ export const GoalCard = ({
       <div className="space-y-4">
         <div className="flex items-start justify-between">
           <div className="space-y-1 flex-1">
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-start gap-2 mb-1">
               <h3 className="font-semibold text-lg">{title}</h3>
               <Badge className={`text-xs ${getStatusColor(status)}`}>
                 {status}
@@ -63,9 +59,6 @@ export const GoalCard = ({
             </div>
             <p className="text-sm text-muted-foreground">{description}</p>
           </div>
-          <Badge variant="secondary" className="ml-2">
-            {category}
-          </Badge>
         </div>
 
         {tags.length > 0 && (
