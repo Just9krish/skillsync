@@ -17,3 +17,6 @@ export {
   toggleTaskCompletion,
   getTasksByGoalId,
 } from './tasks';
+
+// Profile actions
+export { updateProfile, updateProfilePicture } from './profile';
