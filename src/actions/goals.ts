@@ -2,10 +2,9 @@
 
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
-import { headers } from 'next/headers';
-import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { generateUniqueSlug } from '@/lib/slugify';
+import { getCurrentUser } from '@/lib/auth-utils';
 
 // Validation schemas
 const CreateGoalSchema = z.object({
@@ -32,18 +31,6 @@ const DeleteGoalSchema = z.object({
   id: z.cuid(),
 });
 
-// Helper function to get current user
-async function getCurrentUser() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session?.user) {
-    throw new Error('Unauthorized');
-  }
-
-  return session.user;
-}
 
 // Create a new learning goal
 export async function createGoal(data: {
@@ -59,9 +46,9 @@ export async function createGoal(data: {
     // Parse and validate form data
     const tags = data.tags
       ? data.tags
-          .split(',')
-          .map(tag => tag.trim())
-          .filter(tag => tag.length > 0)
+        .split(',')
+        .map(tag => tag.trim())
+        .filter(tag => tag.length > 0)
       : [];
 
     const rawData = {
@@ -187,7 +174,7 @@ export async function updateGoal(data: {
 }
 
 // Delete a learning goal
-export async function deleteGoal(data: { id: string }) {
+export async function deleteGoal(data: { id: string; }) {
   try {
     const user = await getCurrentUser();
 

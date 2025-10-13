@@ -3,8 +3,7 @@
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
-import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
+import { getCurrentUser } from '@/lib/auth-utils';
 
 // Profile update schema
 const updateProfileSchema = z.object({
@@ -22,18 +21,6 @@ const updateProfileSchema = z.object({
 
 type UpdateProfileData = z.infer<typeof updateProfileSchema>;
 
-// Helper function to get current user
-async function getCurrentUser() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session?.user) {
-    throw new Error('Unauthorized');
-  }
-
-  return session.user;
-}
 
 export async function updateProfile(data: UpdateProfileData) {
   try {

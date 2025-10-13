@@ -15,6 +15,7 @@ import {
   getDaysUntilDue,
 } from '@/lib/task-utils';
 import { TaskPriority } from '@/generated/prisma';
+import { formatShortDate } from '@/lib/date-utils';
 
 interface TaskItemProps {
   task: {
@@ -79,14 +80,6 @@ export function TaskItem({ task }: TaskItemProps) {
     confirmDelete(task.title, handleDelete);
   };
 
-  const formatDate = (date: Date | null) => {
-    if (!date) return null;
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    }).format(new Date(date));
-  };
 
   return (
     <div className="group p-4 rounded-lg border border-border hover:border-primary/50 hover:bg-accent/30 transition-all">
@@ -127,7 +120,7 @@ export function TaskItem({ task }: TaskItemProps) {
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
               <div className="flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
-                <span>Due: {formatDate(task.dueDate)}</span>
+                <span>Due: {formatShortDate(task.dueDate)}</span>
                 {!task.completed && isTaskDueSoon(task) && (
                   <Badge variant="destructive" className="ml-2 text-xs">
                     Due soon

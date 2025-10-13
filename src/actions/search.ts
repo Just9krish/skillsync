@@ -1,27 +1,14 @@
 'use server';
 
 import { z } from 'zod';
-import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { headers } from 'next/headers';
+import { getCurrentUser } from '@/lib/auth-utils';
 
 const SearchSchema = z.object({
   query: z.string().min(1, 'Search query is required'),
   limit: z.number().min(1).max(50).default(10),
 });
 
-// Helper function to get current user
-async function getCurrentUser() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session?.user) {
-    throw new Error('Unauthorized');
-  }
-
-  return session.user;
-}
 
 export async function searchGoalsAndTasks(data: {
   query: string;

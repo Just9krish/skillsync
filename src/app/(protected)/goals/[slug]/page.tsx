@@ -22,6 +22,7 @@ import {
 import { AddTaskDialog } from './_components/add-task-dialog';
 import { TaskItem } from './_components/task-item';
 import { sortTasksByPriorityAndDeadline } from '@/lib/task-utils';
+import { formatShortDate } from '@/lib/date-utils';
 
 interface GoalPageProps {
   params: Promise<{
@@ -44,13 +45,6 @@ export default async function GoalDetail({ params }: GoalPageProps) {
   // Sort tasks by priority and deadline
   const sortedTasks = sortTasksByPriorityAndDeadline(goal.tasks);
 
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  };
 
   const getDaysUntil = (date: Date) => {
     const today = new Date();
@@ -100,7 +94,7 @@ export default async function GoalDetail({ params }: GoalPageProps) {
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <div>
                     <p className="text-muted-foreground">Deadline</p>
-                    <p className="font-medium">{formatDate(goal.deadline)}</p>
+                    <p className="font-medium">{formatShortDate(goal.deadline)}</p>
                     <p className="text-xs text-muted-foreground">
                       {getDaysUntil(goal.deadline) > 0
                         ? `${getDaysUntil(goal.deadline)} days left`
@@ -114,7 +108,7 @@ export default async function GoalDetail({ params }: GoalPageProps) {
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-muted-foreground">Created</p>
-                  <p className="font-medium">{formatDate(goal.createdAt)}</p>
+                  <p className="font-medium">{formatShortDate(goal.createdAt)}</p>
                 </div>
               </div>
 

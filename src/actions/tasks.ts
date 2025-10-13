@@ -2,10 +2,9 @@
 
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
-import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { generateUniqueSlug } from '@/lib/slugify';
-import { headers } from 'next/headers';
+import { getCurrentUser } from '@/lib/auth-utils';
 
 // Validation schemas
 const CreateTaskSchema = z.object({
@@ -35,18 +34,6 @@ const DeleteTaskSchema = z.object({
   id: z.cuid(),
 });
 
-// Helper function to get current user
-async function getCurrentUser() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session?.user) {
-    throw new Error('Unauthorized');
-  }
-
-  return session.user;
-}
 
 // Helper function to check if goal belongs to user
 async function verifyGoalOwnership(goalId: string, userId: string) {
@@ -288,7 +275,7 @@ export async function toggleTaskCompletion(data: {
 }
 
 // Delete a task
-export async function deleteTask(data: { id: string }) {
+export async function deleteTask(data: { id: string; }) {
   try {
     const user = await getCurrentUser();
 

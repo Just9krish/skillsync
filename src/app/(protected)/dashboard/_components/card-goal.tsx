@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Calendar } from 'lucide-react';
 import Link from 'next/link';
+import { formatShortDate } from '@/lib/date-utils';
 
 interface GoalCardProps {
   title: string;
@@ -36,14 +37,6 @@ export const GoalCard = ({
     }
   };
 
-  const formatDate = (date: Date | null) => {
-    if (!date) return null;
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    }).format(new Date(date));
-  };
 
   return (
     <Card className="p-6 hover:shadow-lg transition-all duration-300 border border-border bg-gradient-to-br from-card to-card/50">
@@ -82,7 +75,7 @@ export const GoalCard = ({
         {deadline && (
           <div className="flex items-center gap-1 text-sm text-muted-foreground">
             <Calendar className="h-4 w-4" />
-            <span>Due: {formatDate(deadline)}</span>
+            <span>Due: {formatShortDate(deadline)}</span>
           </div>
         )}
 
