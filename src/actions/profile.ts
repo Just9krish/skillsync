@@ -21,7 +21,6 @@ const updateProfileSchema = z.object({
 
 type UpdateProfileData = z.infer<typeof updateProfileSchema>;
 
-
 export async function updateProfile(data: UpdateProfileData) {
   try {
     const user = await getCurrentUser();

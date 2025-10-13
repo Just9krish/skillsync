@@ -5,20 +5,12 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import {
   Empty,
-  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty';
-import {
-  Sparkles,
-  Calendar,
-  Clock,
-  Tag,
-  AlertCircle,
-  CheckSquare,
-} from 'lucide-react';
+import { Calendar, Clock, AlertCircle, CheckSquare } from 'lucide-react';
 import { AddTaskDialog } from './_components/add-task-dialog';
 import { TaskItem } from './_components/task-item';
 import { sortTasksByPriorityAndDeadline } from '@/lib/task-utils';
@@ -44,7 +36,6 @@ export default async function GoalDetail({ params }: GoalPageProps) {
 
   // Sort tasks by priority and deadline
   const sortedTasks = sortTasksByPriorityAndDeadline(goal.tasks);
-
 
   const getDaysUntil = (date: Date) => {
     const today = new Date();
@@ -94,7 +85,9 @@ export default async function GoalDetail({ params }: GoalPageProps) {
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <div>
                     <p className="text-muted-foreground">Deadline</p>
-                    <p className="font-medium">{formatShortDate(goal.deadline)}</p>
+                    <p className="font-medium">
+                      {formatShortDate(goal.deadline)}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       {getDaysUntil(goal.deadline) > 0
                         ? `${getDaysUntil(goal.deadline)} days left`
@@ -108,7 +101,9 @@ export default async function GoalDetail({ params }: GoalPageProps) {
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-muted-foreground">Created</p>
-                  <p className="font-medium">{formatShortDate(goal.createdAt)}</p>
+                  <p className="font-medium">
+                    {formatShortDate(goal.createdAt)}
+                  </p>
                 </div>
               </div>
 
@@ -202,8 +197,8 @@ export default async function GoalDetail({ params }: GoalPageProps) {
           </Card>
         </div>
 
-        {/* AI Learning Path */}
-        <div className="lg:col-span-1">
+        {/* AI Learning Path - Coming Soon */}
+        {/* <div className="lg:col-span-1">
           <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="h-5 w-5 text-primary" />
@@ -240,7 +235,7 @@ export default async function GoalDetail({ params }: GoalPageProps) {
               Generate AI Path
             </button>
           </Card>
-        </div>
+        </div> */}
       </div>
     </div>
   );

@@ -9,7 +9,6 @@ const SearchSchema = z.object({
   limit: z.number().min(1).max(50).default(10),
 });
 
-
 export async function searchGoalsAndTasks(data: {
   query: string;
   limit?: number;

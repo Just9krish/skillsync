@@ -31,7 +31,6 @@ const DeleteGoalSchema = z.object({
   id: z.cuid(),
 });
 
-
 // Create a new learning goal
 export async function createGoal(data: {
   title: string;
@@ -46,9 +45,9 @@ export async function createGoal(data: {
     // Parse and validate form data
     const tags = data.tags
       ? data.tags
-        .split(',')
-        .map(tag => tag.trim())
-        .filter(tag => tag.length > 0)
+          .split(',')
+          .map(tag => tag.trim())
+          .filter(tag => tag.length > 0)
       : [];
 
     const rawData = {
@@ -174,7 +173,7 @@ export async function updateGoal(data: {
 }
 
 // Delete a learning goal
-export async function deleteGoal(data: { id: string; }) {
+export async function deleteGoal(data: { id: string }) {
   try {
     const user = await getCurrentUser();
 

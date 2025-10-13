@@ -5,15 +5,15 @@
  * @returns Formatted date string or null if date is null
  */
 export function formatDate(
-    date: Date | null,
-    options: Intl.DateTimeFormatOptions = {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-    }
+  date: Date | null,
+  options: Intl.DateTimeFormatOptions = {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }
 ): string | null {
-    if (!date) return null;
-    return new Intl.DateTimeFormat('en-US', options).format(new Date(date));
+  if (!date) return null;
+  return new Intl.DateTimeFormat('en-US', options).format(new Date(date));
 }
 
 /**
@@ -22,11 +22,11 @@ export function formatDate(
  * @returns Formatted date string or null if date is null
  */
 export function formatShortDate(date: Date | null): string | null {
-    return formatDate(date, {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-    });
+  return formatDate(date, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
 }
 
 /**
@@ -35,11 +35,11 @@ export function formatShortDate(date: Date | null): string | null {
  * @returns Formatted date string or null if date is null
  */
 export function formatLongDate(date: Date | null): string | null {
-    return formatDate(date, {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-    });
+  return formatDate(date, {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
 }
 
 /**
@@ -48,11 +48,11 @@ export function formatLongDate(date: Date | null): string | null {
  * @returns Formatted time string or null if date is null
  */
 export function formatTime(date: Date | null): string | null {
-    return formatDate(date, {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true,
-    });
+  return formatDate(date, {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
 }
 
 /**
@@ -61,12 +61,12 @@ export function formatTime(date: Date | null): string | null {
  * @returns Formatted date and time string or null if date is null
  */
 export function formatDateTime(date: Date | null): string | null {
-    return formatDate(date, {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true,
-    });
+  return formatDate(date, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
 }

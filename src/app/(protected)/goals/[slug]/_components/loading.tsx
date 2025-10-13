@@ -8,7 +8,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty';
-import { CheckSquare, Sparkles } from 'lucide-react';
+import { CheckSquare } from 'lucide-react';
 
 export default function Loading() {
   return (
@@ -96,8 +96,8 @@ export default function Loading() {
           </Card>
         </div>
 
-        {/* AI Learning Path Skeleton */}
-        <div className="lg:col-span-1">
+        {/* AI Learning Path Skeleton - Coming Soon */}
+        {/* <div className="lg:col-span-1">
           <Card className="p-6">
             <div className="flex items-center gap-2 mb-4">
               <Skeleton className="h-5 w-5" />
@@ -115,7 +115,7 @@ export default function Loading() {
 
             <Skeleton className="h-10 w-full mt-6" />
           </Card>
-        </div>
+        </div> */}
       </div>
     </div>
   );

@@ -80,7 +80,6 @@ export function TaskItem({ task }: TaskItemProps) {
     confirmDelete(task.title, handleDelete);
   };
 
-
   return (
     <div className="group p-4 rounded-lg border border-border hover:border-primary/50 hover:bg-accent/30 transition-all">
       <div className="flex items-start gap-3">

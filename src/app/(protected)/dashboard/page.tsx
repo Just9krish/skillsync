@@ -64,8 +64,10 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        {/* AI Insights Section */}
-        <div className="lg:col-span-1">{/* <AIInsights /> */}</div>
+        {/* AI Insights Section - Coming Soon */}
+        {/* <div className="lg:col-span-1">
+          <AIInsights />
+        </div> */}
       </div>
     </div>
   );

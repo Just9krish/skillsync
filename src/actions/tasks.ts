@@ -34,7 +34,6 @@ const DeleteTaskSchema = z.object({
   id: z.cuid(),
 });
 
-
 // Helper function to check if goal belongs to user
 async function verifyGoalOwnership(goalId: string, userId: string) {
   const goal = await prisma.learningGoal.findFirst({
@@ -275,7 +274,7 @@ export async function toggleTaskCompletion(data: {
 }
 
 // Delete a task
-export async function deleteTask(data: { id: string; }) {
+export async function deleteTask(data: { id: string }) {
   try {
     const user = await getCurrentUser();
 

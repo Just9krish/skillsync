@@ -7,15 +7,15 @@ import { headers } from 'next/headers';
  * @throws Error if user is not authenticated
  */
 export async function getCurrentUser() {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-    if (!session?.user) {
-        throw new Error('Unauthorized');
-    }
+  if (!session?.user) {
+    throw new Error('Unauthorized');
+  }
 
-    return session.user;
+  return session.user;
 }
 
 /**
@@ -24,6 +24,6 @@ export async function getCurrentUser() {
  * @throws Error if user is not authenticated
  */
 export async function getCurrentUserId(): Promise<string> {
-    const user = await getCurrentUser();
-    return user.id;
+  const user = await getCurrentUser();
+  return user.id;
 }

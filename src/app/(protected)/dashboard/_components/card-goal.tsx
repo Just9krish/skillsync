@@ -37,7 +37,6 @@ export const GoalCard = ({
     }
   };
 
-
   return (
     <Card className="p-6 hover:shadow-lg transition-all duration-300 border border-border bg-gradient-to-br from-card to-card/50">
       <div className="space-y-4">
