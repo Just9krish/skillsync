@@ -1,6 +1,14 @@
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/components/ui/empty';
 import { Target, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { getUserGoals } from '@/actions/goals';
@@ -78,16 +86,20 @@ export default async function Goals() {
           ))}
         </div>
       ) : (
-        <Card className="p-12 text-center">
-          <div className="h-16 w-16 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
-            <Target className="h-8 w-8 text-muted-foreground" />
-          </div>
-          <h3 className="text-xl font-semibold mb-2">No goals yet</h3>
-          <p className="text-muted-foreground mb-4">
-            Create your first learning goal to get started
-          </p>
-          <CreateGoalDialog />
-        </Card>
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Target className="h-6 w-6" />
+            </EmptyMedia>
+            <EmptyTitle>No goals yet</EmptyTitle>
+            <EmptyDescription>
+              Create your first learning goal to get started on your journey.
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <CreateGoalDialog />
+          </EmptyContent>
+        </Empty>
       )}
     </div>
   );

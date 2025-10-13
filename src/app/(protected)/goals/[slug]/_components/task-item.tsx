@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Calendar, Trash2 } from 'lucide-react';
 import { toggleTaskCompletion, deleteTask } from '@/actions/tasks';
 import { toast } from 'sonner';
+import { useConfirm } from '@/hooks/use-confirm';
 
 interface TaskItemProps {
   task: {
@@ -23,7 +24,7 @@ interface TaskItemProps {
 
 export function TaskItem({ task }: TaskItemProps) {
   const [isToggling, setIsToggling] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const { confirmDelete } = useConfirm();
 
   const handleToggle = async () => {
     setIsToggling(true);
@@ -50,9 +51,6 @@ export function TaskItem({ task }: TaskItemProps) {
   };
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this task?')) return;
-
-    setIsDeleting(true);
     try {
       const result = await deleteTask({ id: task.id });
 
@@ -65,9 +63,11 @@ export function TaskItem({ task }: TaskItemProps) {
     } catch (error) {
       toast.error('An unexpected error occurred');
       console.error('Error deleting task:', error);
-    } finally {
-      setIsDeleting(false);
     }
+  };
+
+  const handleDeleteClick = () => {
+    confirmDelete(task.title, handleDelete);
   };
 
   const getPriorityColor = (priority: string) => {
@@ -164,8 +164,7 @@ export function TaskItem({ task }: TaskItemProps) {
         <Button
           variant="ghost"
           size="sm"
-          onClick={handleDelete}
-          disabled={isDeleting}
+          onClick={handleDeleteClick}
           className="text-destructive hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
         >
           <Trash2 className="h-4 w-4" />

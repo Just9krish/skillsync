@@ -1,6 +1,15 @@
 import { CreateGoalDialog } from '@/components/goals/create-goal-dialog';
 import { GoalCard } from './_components/card-goal';
 import { getUserGoals } from '@/actions/goals';
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/components/ui/empty';
+import { Target } from 'lucide-react';
 
 export default async function DashboardPage() {
   const { goals } = await getUserGoals();
@@ -37,28 +46,21 @@ export default async function DashboardPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4">
-                <svg
-                  className="w-12 h-12 text-muted-foreground"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold mb-2">No goals yet</h3>
-              <p className="text-muted-foreground mb-4">
-                Create your first learning goal to get started
-              </p>
-              <CreateGoalDialog />
-            </div>
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <Target className="h-6 w-6" />
+                </EmptyMedia>
+                <EmptyTitle>No goals yet</EmptyTitle>
+                <EmptyDescription>
+                  Create your first learning goal to get started on your
+                  journey.
+                </EmptyDescription>
+              </EmptyHeader>
+              <EmptyContent>
+                <CreateGoalDialog />
+              </EmptyContent>
+            </Empty>
           )}
         </div>
 

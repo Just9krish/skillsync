@@ -3,9 +3,25 @@ import { getGoalBySlug } from '@/actions/goals';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Sparkles, Calendar, Clock, Tag, AlertCircle } from 'lucide-react';
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/components/ui/empty';
+import {
+  Sparkles,
+  Calendar,
+  Clock,
+  Tag,
+  AlertCircle,
+  CheckSquare,
+} from 'lucide-react';
 import { AddTaskDialog } from './_components/add-task-dialog';
 import { TaskItem } from './_components/task-item';
+import { task } from 'better-auth/react';
 
 interface GoalPageProps {
   params: Promise<{
@@ -162,18 +178,26 @@ export default async function GoalDetail({ params }: GoalPageProps) {
               </div>
             </div>
 
-            {/* Progress Bar */}
-            <div className="mb-6">
-              <Progress value={progress} className="h-2" />
-            </div>
+            {goal.tasks.length > 0 && (
+              <div className="mb-6">
+                <Progress value={progress} className="h-2" />
+              </div>
+            )}
 
             {/* Tasks List */}
             <div className="space-y-3">
               {goal.tasks.length === 0 ? (
-                <div className="text-center py-12 text-muted-foreground">
-                  <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No tasks yet. Add your first task to get started!</p>
-                </div>
+                <Empty>
+                  <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                      <CheckSquare className="h-6 w-6" />
+                    </EmptyMedia>
+                    <EmptyTitle>No tasks yet</EmptyTitle>
+                    <EmptyDescription>
+                      Add your first task to get started on this goal.
+                    </EmptyDescription>
+                  </EmptyHeader>
+                </Empty>
               ) : (
                 goal.tasks.map(task => <TaskItem key={task.id} task={task} />)
               )}
@@ -182,7 +206,7 @@ export default async function GoalDetail({ params }: GoalPageProps) {
         </div>
 
         {/* AI Learning Path */}
-        {/* <div className="lg:col-span-1">
+        <div className="lg:col-span-1">
           <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="h-5 w-5 text-primary" />
@@ -201,9 +225,17 @@ export default async function GoalDetail({ params }: GoalPageProps) {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-4 text-muted-foreground">
-                <p className="text-sm">No AI content generated yet</p>
-              </div>
+              <Empty>
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <Sparkles className="h-6 w-6" />
+                  </EmptyMedia>
+                  <EmptyTitle>No AI content generated yet</EmptyTitle>
+                  <EmptyDescription>
+                    Generate an AI-powered learning path for this goal.
+                  </EmptyDescription>
+                </EmptyHeader>
+              </Empty>
             )}
 
             <button className="w-full mt-6 bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md text-sm font-medium transition-colors">
@@ -211,7 +243,7 @@ export default async function GoalDetail({ params }: GoalPageProps) {
               Generate AI Path
             </button>
           </Card>
-        </div> */}
+        </div>
       </div>
     </div>
   );

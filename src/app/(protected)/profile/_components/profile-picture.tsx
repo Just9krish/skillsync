@@ -8,10 +8,12 @@ import { useState } from 'react';
 import { useSession } from '@/lib/auth-client';
 import { updateProfilePicture } from '@/actions/profile';
 import { toast } from 'sonner';
+import { useConfirm } from '@/hooks/use-confirm';
 
 export function ProfilePicture() {
   const [isUploading, setIsUploading] = useState(false);
   const { data, isPending, error } = useSession();
+  const { confirmRemove } = useConfirm();
 
   const user = data?.user;
   const [avatar, setAvatar] = useState(user?.image || '');
@@ -58,6 +60,10 @@ export function ProfilePicture() {
     }
   };
 
+  const handleRemoveClick = () => {
+    confirmRemove('profile picture', handleAvatarRemove);
+  };
+
   if (isPending) {
     return (
       <div className="flex items-center gap-6">
@@ -96,7 +102,7 @@ export function ProfilePicture() {
             <Upload className="h-4 w-4 mr-1" />
             {isUploading ? 'Uploading...' : 'Upload New'}
           </Button>
-          <Button variant="ghost" size="sm" onClick={handleAvatarRemove}>
+          <Button variant="ghost" size="sm" onClick={handleRemoveClick}>
             <Trash2 className="h-4 w-4 mr-1" />
             Remove
           </Button>
