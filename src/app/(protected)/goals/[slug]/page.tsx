@@ -149,7 +149,7 @@ export default async function GoalDetail({ params }: GoalPageProps) {
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Tasks Section */}
         <div className="lg:col-span-2">
-          <Card className="p-6">
+          <Card className="p-6 border-border  ">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-xl font-semibold">Tasks</h2>

@@ -11,7 +11,6 @@ const navItems = [
   { title: 'Goals', icon: Target, path: '/goals' },
   { title: 'AI Assistant', icon: MessageSquare, path: '/ai-assistant' },
   { title: 'Profile', icon: User, path: '/profile' },
-  { title: 'Settings', icon: Settings, path: '/settings' },
 ];
 
 export const Sidebar = () => {
