@@ -3,6 +3,7 @@ import './globals.css';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/context/theme-provider';
 import { AlertDialogProvider } from '@/context/alert-dialog-context';
+import { SearchProvider } from '@/context/search-context';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -26,7 +27,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AlertDialogProvider>{children}</AlertDialogProvider>
+          <AlertDialogProvider>
+            <SearchProvider>{children}</SearchProvider>
+          </AlertDialogProvider>
         </ThemeProvider>
         <Toaster />
       </body>

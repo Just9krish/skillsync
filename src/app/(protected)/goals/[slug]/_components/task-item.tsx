@@ -8,17 +8,26 @@ import { Calendar, Trash2 } from 'lucide-react';
 import { toggleTaskCompletion, deleteTask } from '@/actions/tasks';
 import { toast } from 'sonner';
 import { useConfirm } from '@/hooks/use-confirm';
+import {
+  getPriorityColor,
+  isTaskOverdue,
+  isTaskDueSoon,
+  getDaysUntilDue,
+} from '@/lib/task-utils';
+import { TaskPriority } from '@/generated/prisma';
 
 interface TaskItemProps {
   task: {
     id: string;
     title: string;
+    slug: string;
     description: string | null;
     completed: boolean;
-    priority: string;
+    priority: TaskPriority;
     dueDate: Date | null;
     createdAt: Date;
     updatedAt: Date;
+    learningGoalId: string;
   };
 }
 
@@ -70,19 +79,6 @@ export function TaskItem({ task }: TaskItemProps) {
     confirmDelete(task.title, handleDelete);
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high':
-        return 'destructive';
-      case 'medium':
-        return 'default';
-      case 'low':
-        return 'secondary';
-      default:
-        return 'default';
-    }
-  };
-
   const formatDate = (date: Date | null) => {
     if (!date) return null;
     return new Intl.DateTimeFormat('en-US', {
@@ -90,15 +86,6 @@ export function TaskItem({ task }: TaskItemProps) {
       day: 'numeric',
       year: 'numeric',
     }).format(new Date(date));
-  };
-
-  const getDaysUntil = (date: Date | null) => {
-    if (!date) return null;
-    const today = new Date();
-    const target = new Date(date);
-    const diffTime = target.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
   };
 
   return (
@@ -129,7 +116,7 @@ export function TaskItem({ task }: TaskItemProps) {
             </div>
 
             <Badge
-              variant={getPriorityColor(task.priority) as any}
+              variant={getPriorityColor(task.priority)}
               className="flex-shrink-0"
             >
               {task.priority}
@@ -141,21 +128,16 @@ export function TaskItem({ task }: TaskItemProps) {
               <div className="flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
                 <span>Due: {formatDate(task.dueDate)}</span>
-                {!task.completed &&
-                  getDaysUntil(task.dueDate) &&
-                  getDaysUntil(task.dueDate)! < 3 &&
-                  getDaysUntil(task.dueDate)! >= 0 && (
-                    <Badge variant="destructive" className="ml-2 text-xs">
-                      Due soon
-                    </Badge>
-                  )}
-                {!task.completed &&
-                  getDaysUntil(task.dueDate) &&
-                  getDaysUntil(task.dueDate)! < 0 && (
-                    <Badge variant="destructive" className="ml-2 text-xs">
-                      Overdue
-                    </Badge>
-                  )}
+                {!task.completed && isTaskDueSoon(task) && (
+                  <Badge variant="destructive" className="ml-2 text-xs">
+                    Due soon
+                  </Badge>
+                )}
+                {!task.completed && isTaskOverdue(task) && (
+                  <Badge variant="destructive" className="ml-2 text-xs">
+                    Overdue
+                  </Badge>
+                )}
               </div>
             </div>
           )}

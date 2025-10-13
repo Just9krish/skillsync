@@ -1,8 +1,7 @@
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Sparkles, Calendar } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import Link from 'next/link';
 
 interface GoalCardProps {
@@ -52,7 +51,11 @@ export const GoalCard = ({
         <div className="flex items-start justify-between">
           <div className="space-y-1 flex-1">
             <div className="flex items-start gap-2 mb-1">
-              <h3 className="font-semibold text-lg">{title}</h3>
+              <Link href={`/goals/${slug}`}>
+                <h3 className="font-semibold text-lg hover:text-primary transition-colors">
+                  {title}
+                </h3>
+              </Link>
               <Badge className={`text-xs ${getStatusColor(status)}`}>
                 {status}
               </Badge>
@@ -89,16 +92,6 @@ export const GoalCard = ({
             <span className="font-medium">{progress}%</span>
           </div>
           <Progress value={progress} className="h-2" />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button size="sm">
-            <Sparkles className="h-4 w-4" />
-            AI Suggest
-          </Button>
-          <Button variant="outline" size="sm" asChild>
-            <Link href={`/goals/${slug}`}>View Details</Link>
-          </Button>
         </div>
       </div>
     </Card>

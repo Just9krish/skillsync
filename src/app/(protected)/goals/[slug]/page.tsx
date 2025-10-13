@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { AddTaskDialog } from './_components/add-task-dialog';
 import { TaskItem } from './_components/task-item';
-import { task } from 'better-auth/react';
+import { sortTasksByPriorityAndDeadline } from '@/lib/task-utils';
 
 interface GoalPageProps {
   params: Promise<{
@@ -40,6 +40,9 @@ export default async function GoalDetail({ params }: GoalPageProps) {
   const completedTasks = goal.tasks.filter(task => task.completed).length;
   const progress =
     goal.tasks.length > 0 ? (completedTasks / goal.tasks.length) * 100 : 0;
+
+  // Sort tasks by priority and deadline
+  const sortedTasks = sortTasksByPriorityAndDeadline(goal.tasks);
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('en-US', {
@@ -199,7 +202,7 @@ export default async function GoalDetail({ params }: GoalPageProps) {
                   </EmptyHeader>
                 </Empty>
               ) : (
-                goal.tasks.map(task => <TaskItem key={task.id} task={task} />)
+                sortedTasks.map(task => <TaskItem key={task.id} task={task} />)
               )}
             </div>
           </Card>

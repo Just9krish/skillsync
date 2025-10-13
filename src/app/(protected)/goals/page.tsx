@@ -32,7 +32,7 @@ export default async function Goals() {
 
       {/* Goals Grid */}
       {goals.length > 0 ? (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 gap-6">
           {goals.map(goal => (
             <Link key={goal.id} href={`/goals/${goal.slug}`}>
               <Card className="p-6 hover:shadow-lg transition-all duration-300 h-full cursor-pointer group">

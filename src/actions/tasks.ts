@@ -385,6 +385,7 @@ export async function getTasksByGoalId(goalId: string) {
       orderBy: [
         { completed: 'asc' },
         { priority: 'desc' },
+        { dueDate: 'asc' },
         { createdAt: 'asc' },
       ],
     });
