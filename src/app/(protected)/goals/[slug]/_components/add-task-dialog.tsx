@@ -2,9 +2,6 @@
 
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -15,16 +12,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -33,18 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { createTask } from '@/actions/tasks';
-
-const createTaskSchema = z.object({
-  title: z
-    .string()
-    .min(1, 'Title is required')
-    .max(200, 'Title must be less than 200 characters'),
-  description: z.string().optional(),
-  priority: z.enum(['low', 'medium', 'high']),
-  dueDate: z.string().optional(),
-});
-
-type CreateTaskFormData = z.infer<typeof createTaskSchema>;
+import { toast } from 'sonner';
 
 interface AddTaskDialogProps {
   goalId: string;
@@ -56,7 +35,7 @@ export function AddTaskDialog({ goalId }: AddTaskDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="default" size="sm">
           <Plus className="h-4 w-4 mr-2" />
           Add Task
         </Button>
@@ -81,36 +60,41 @@ interface CreateTaskFormProps {
 
 function CreateTaskForm({ goalId, onSuccess }: CreateTaskFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const form = useForm<CreateTaskFormData>({
-    resolver: zodResolver(createTaskSchema),
-    defaultValues: {
-      title: '',
-      description: '',
-      priority: 'medium',
-      dueDate: '',
-    },
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    priority: 'medium' as 'low' | 'medium' | 'high',
+    dueDate: '',
   });
 
-  const onSubmit = async (data: CreateTaskFormData) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsSubmitting(true);
 
     try {
       const result = await createTask({
-        title: data.title,
-        description: data.description,
-        priority: data.priority,
-        dueDate: data.dueDate,
+        title: formData.title,
+        description: formData.description || undefined,
+        priority: formData.priority,
+        dueDate: formData.dueDate || undefined,
         learningGoalId: goalId,
       });
 
       if (result.success) {
-        form.reset();
+        setFormData({
+          title: '',
+          description: '',
+          priority: 'medium',
+          dueDate: '',
+        });
+        toast.success('Task created successfully!');
         onSuccess();
       } else {
+        toast.error(result.error || 'Failed to create task');
         console.error('Error creating task:', result.error);
       }
     } catch (error) {
+      toast.error('An unexpected error occurred');
       console.error('Error creating task:', error);
     } finally {
       setIsSubmitting(false);
@@ -118,99 +102,77 @@ function CreateTaskForm({ goalId, onSuccess }: CreateTaskFormProps) {
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Title *</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="e.g., Complete TypeScript fundamentals course"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="title">Title *</Label>
+        <Input
+          id="title"
+          placeholder="e.g., Complete TypeScript fundamentals course"
+          value={formData.title}
+          onChange={e => setFormData({ ...formData, title: e.target.value })}
+          required
         />
+      </div>
 
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Describe what needs to be done..."
-                  rows={3}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+      <div className="space-y-2">
+        <Label htmlFor="description">Description</Label>
+        <Textarea
+          id="description"
+          placeholder="Describe what needs to be done..."
+          rows={3}
+          value={formData.description}
+          onChange={e =>
+            setFormData({ ...formData, description: e.target.value })
+          }
         />
+      </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="priority"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Priority</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select priority" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="dueDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Due Date</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="priority">Priority</Label>
+          <Select
+            value={formData.priority}
+            onValueChange={(value: 'low' | 'medium' | 'high') =>
+              setFormData({ ...formData, priority: value })
+            }
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select priority" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="low">Low</SelectItem>
+              <SelectItem value="medium">Medium</SelectItem>
+              <SelectItem value="high">High</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
-        <DialogFooter>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onSuccess()}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Creating...' : 'Create Task'}
-          </Button>
-        </DialogFooter>
-      </form>
-    </Form>
+        <div className="space-y-2">
+          <Label htmlFor="dueDate">Due Date</Label>
+          <Input
+            id="dueDate"
+            type="date"
+            value={formData.dueDate}
+            onChange={e =>
+              setFormData({ ...formData, dueDate: e.target.value })
+            }
+          />
+        </div>
+      </div>
+
+      <DialogFooter>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => onSuccess()}
+          disabled={isSubmitting}
+        >
+          Cancel
+        </Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Creating...' : 'Create Task'}
+        </Button>
+      </DialogFooter>
+    </form>
   );
 }

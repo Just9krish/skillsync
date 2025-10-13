@@ -1,20 +1,21 @@
 import { notFound } from 'next/navigation';
 import { getGoalBySlug } from '@/actions/goals';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, Calendar, Circle } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Sparkles, Calendar, Clock, Tag, AlertCircle } from 'lucide-react';
 import { AddTaskDialog } from './_components/add-task-dialog';
 import { TaskItem } from './_components/task-item';
 
 interface GoalPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export default async function GoalDetail({ params }: GoalPageProps) {
-  const { goal } = await getGoalBySlug(params.slug);
+  const { slug } = await params;
+  const { goal } = await getGoalBySlug(slug);
 
   if (!goal) {
     notFound();
@@ -24,66 +25,125 @@ export default async function GoalDetail({ params }: GoalPageProps) {
   const progress =
     goal.tasks.length > 0 ? (completedTasks / goal.tasks.length) * 100 : 0;
 
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  };
+
+  const getDaysUntil = (date: Date) => {
+    const today = new Date();
+    const target = new Date(date);
+    const diffTime = target.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
-        <div className="flex items-start justify-between mb-6">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <h1 className="text-3xl font-bold">{goal.title}</h1>
-              <Badge variant="secondary">{goal.tags[0] || 'General'}</Badge>
+        <div className="flex items-start justify-between gap-6">
+          <div className="flex-1 space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-3xl font-bold">{goal.title}</h1>
+                <Badge
+                  variant={goal.status === 'active' ? 'default' : 'secondary'}
+                >
+                  {goal.status}
+                </Badge>
+              </div>
+              {goal.description && (
+                <p className="text-muted-foreground mt-2  ">
+                  {goal.description}
+                </p>
+              )}
             </div>
-            <p className="text-muted-foreground">
-              {goal.description || 'No description provided'}
-            </p>
-            {goal.deadline && (
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Calendar className="h-4 w-4" />
-                <span>Due: {new Date(goal.deadline).toLocaleDateString()}</span>
+
+            {/* Tags */}
+            {goal.tags.length > 0 && (
+              <div className="flex items-center gap-2 flex-wrap">
+                {goal.tags.map(tag => (
+                  <Badge key={tag} variant="outline" className="text-xs">
+                    {tag}
+                  </Badge>
+                ))}
               </div>
             )}
+
+            {/* Metadata */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+              {goal.deadline && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-muted-foreground">Deadline</p>
+                    <p className="font-medium">{formatDate(goal.deadline)}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {getDaysUntil(goal.deadline) > 0
+                        ? `${getDaysUntil(goal.deadline)} days left`
+                        : 'Overdue'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center gap-2 text-sm">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <p className="text-muted-foreground">Created</p>
+                  <p className="font-medium">{formatDate(goal.createdAt)}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 text-sm">
+                <AlertCircle className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <p className="text-muted-foreground">Tasks</p>
+                  <p className="font-medium">
+                    {completedTasks} / {goal.tasks.length} completed
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="text-center">
-            <div className="relative inline-flex h-24 w-24">
+          {/* Progress Circle */}
+          <div className="text-center flex-shrink-0">
+            <div className="relative inline-flex h-32 w-32">
               <svg className="h-full w-full -rotate-90">
                 <circle
                   className="text-muted stroke-current"
-                  strokeWidth="8"
+                  strokeWidth="10"
                   fill="transparent"
-                  r="40"
-                  cx="48"
-                  cy="48"
+                  r="56"
+                  cx="64"
+                  cy="64"
                 />
                 <circle
-                  className="text-primary stroke-current"
-                  strokeWidth="8"
+                  className="text-primary stroke-current transition-all duration-300"
+                  strokeWidth="10"
                   strokeLinecap="round"
                   fill="transparent"
-                  r="40"
-                  cx="48"
-                  cy="48"
-                  strokeDasharray={`${2 * Math.PI * 40}`}
-                  strokeDashoffset={`${2 * Math.PI * 40 * (1 - progress / 100)}`}
+                  r="56"
+                  cx="64"
+                  cy="64"
+                  strokeDasharray={`${2 * Math.PI * 56}`}
+                  strokeDashoffset={`${2 * Math.PI * 56 * (1 - progress / 100)}`}
                 />
               </svg>
-              <span className="absolute inset-0 flex items-center justify-center text-xl font-bold">
-                {Math.round(progress)}%
-              </span>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-3xl font-bold">
+                  {Math.round(progress)}%
+                </span>
+                <span className="text-xs text-muted-foreground">Complete</span>
+              </div>
             </div>
           </div>
         </div>
-
-        {goal.tags.length > 0 && (
-          <div className="flex items-center gap-1 flex-wrap">
-            {goal.tags.map((tag, index) => (
-              <Badge key={index} variant="outline" className="text-xs">
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )}
       </Card>
 
       <div className="grid lg:grid-cols-3 gap-6">
@@ -91,25 +151,38 @@ export default async function GoalDetail({ params }: GoalPageProps) {
         <div className="lg:col-span-2">
           <Card className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">Tasks</h2>
-              <AddTaskDialog goalId={goal.id} />
+              <div>
+                <h2 className="text-xl font-semibold">Tasks</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {completedTasks} of {goal.tasks.length} tasks completed
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <AddTaskDialog goalId={goal.id} />
+              </div>
             </div>
 
+            {/* Progress Bar */}
+            <div className="mb-6">
+              <Progress value={progress} className="h-2" />
+            </div>
+
+            {/* Tasks List */}
             <div className="space-y-3">
-              {goal.tasks.length > 0 ? (
-                goal.tasks.map(task => <TaskItem key={task.id} task={task} />)
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Circle className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              {goal.tasks.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>No tasks yet. Add your first task to get started!</p>
                 </div>
+              ) : (
+                goal.tasks.map(task => <TaskItem key={task.id} task={task} />)
               )}
             </div>
           </Card>
         </div>
 
         {/* AI Learning Path */}
-        <div className="lg:col-span-1">
+        {/* <div className="lg:col-span-1">
           <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="h-5 w-5 text-primary" />
@@ -133,12 +206,12 @@ export default async function GoalDetail({ params }: GoalPageProps) {
               </div>
             )}
 
-            <Button className="w-full mt-6">
-              <Sparkles className="h-4 w-4 mr-2" />
+            <button className="w-full mt-6 bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md text-sm font-medium transition-colors">
+              <Sparkles className="h-4 w-4 mr-2 inline" />
               Generate AI Path
-            </Button>
+            </button>
           </Card>
-        </div>
+        </div> */}
       </div>
     </div>
   );
