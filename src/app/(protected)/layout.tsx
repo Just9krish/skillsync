@@ -1,7 +1,7 @@
-import { Navbar } from '@/components/layout/navbar';
+import { Navbar } from '@/components/layout/Navbar';
 import { Sidebar } from '@/components/layout/sidebar';
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: React.ReactNode; }) {
   return (
     <div className="flex">
       <Navbar />
