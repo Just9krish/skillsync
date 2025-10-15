@@ -13,12 +13,12 @@ export const SignOutButton = ({
   ...props
 }: {
   variant?:
-  | 'outline'
-  | 'default'
-  | 'ghost'
-  | 'link'
-  | 'secondary'
-  | 'destructive';
+    | 'outline'
+    | 'default'
+    | 'ghost'
+    | 'link'
+    | 'secondary'
+    | 'destructive';
   size?: 'default' | 'sm' | 'lg' | 'icon' | 'icon-sm' | 'icon-lg';
   className?: string;
   props?: React.ComponentProps<typeof Button>;
