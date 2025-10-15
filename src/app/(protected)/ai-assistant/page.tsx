@@ -13,7 +13,7 @@ export default function AiAssistantPage() {
         <Brain className="h-16 w-16 text-primary mx-auto mb-4" />
         <h2 className="text-xl font-semibold mb-2">AI Assistant Coming Soon</h2>
         <p className="text-muted-foreground">
-          We're working on an intelligent AI assistant to help with your
+          We&apos;re working on an intelligent AI assistant to help with your
           learning journey.
         </p>
       </Card>
