@@ -9,7 +9,12 @@ import { SignOutButton } from '../auth/signout-button';
 const navItems = [
   { title: 'Dashboard', icon: Home, path: '/dashboard' },
   { title: 'Goals', icon: Target, path: '/goals' },
-  { title: 'AI Assistant', icon: MessageSquare, path: '/ai-assistant' },
+  {
+    title: 'AI Assistant',
+    icon: MessageSquare,
+    path: '/ai-assistant',
+    upcoming: true,
+  },
   { title: 'Profile', icon: User, path: '/profile' },
 ];
 
@@ -41,7 +46,12 @@ export const Sidebar = () => {
               )}
             >
               <item.icon className="h-5 w-5" />
-              {item.title}
+              <span className="flex-1">{item.title}</span>
+              {item.upcoming && (
+                <span className="text-xs bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 px-2 py-1 rounded-full">
+                  Soon
+                </span>
+              )}
             </Link>
           );
         })}
